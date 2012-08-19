@@ -7,11 +7,11 @@
     <name>Kitchen Sink</name>
 
     <description>
-        PhoneGap Kitchen Sink Demo
+        Digidj mobile app
     </description>
 
-    <author href="http://michaelbrooks.ca" email="michael.brooks@nitobi.com">
-        Michael Brooks
+    <author href="http://brianyang.com" email="mail@brianyang.com">
+       Brian Yang
     </author>
 
     <icon src="resource/icon/icon-57.png"  width="57"  height="57"  gap:role="default" />
