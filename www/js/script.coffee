@@ -1,6 +1,18 @@
 glob = []
 glob.triggerHash = ->
   console.log 'triggerHash'
+  wlh = window.location.hash.replace('#','')
+  id = wlh
+  url = 'http://by.subsonic.org/rest/getMusicDirectory.view?u=brian&p=home&v=1.1.0&c=myapp&f=jsonp&callback=?&id=' + id
+  $.ajax
+    url:url
+    dataType:'jsonp'
+    success: (d) ->
+      console.log d['subsonic-response']['directory']['child']
+      $(d['subsonic-response']['directory']['child']).each ->
+        #console.log this.title
+        $('#tracks').append('<li><a href=#' + this.id + ' >' + this.title + '</a></li>').listview('refresh')
+
 
 $('body').on 'click', '#tracks a,.musicFolder', (e) ->
   #console.log e.target
@@ -9,7 +21,7 @@ $('body').on 'click', '#tracks a,.musicFolder', (e) ->
   console.log e.target.hash
   console.log e.target.hash.length
   window.location.hash = e.target.hash
-  glob.triggerHash()
+  glob.triggerHash() if e.target.hash.length > 3
 
   $('#tracks').empty()
 
