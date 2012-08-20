@@ -8,20 +8,25 @@ glob.triggerHash = ->
     url:url
     dataType:'jsonp'
     success: (d) ->
-      console.log d['subsonic-response']['directory']['child']
+      #console.log d['subsonic-response']['directory']['child']
       $(d['subsonic-response']['directory']['child']).each ->
         #console.log this.title
         $('#tracks').append('<li><a href=#' + this.id + ' >' + this.title + '</a></li>').listview('refresh')
+      glob.lastLevel = 1 if d['subsonic-response']['directory']['child']
+
+glob.showFullDetail = ->
+  #alert 'show full'
+  $('#img-wrap').prepend '<b>foo</b>'
 
 
 $('body').on 'click', '#tracks a,.musicFolder', (e) ->
-  #console.log e.target
   id = $(e.target).attr('id')
   url = 'http://by.subsonic.org/rest/getIndexes.view?u=brian&p=home&v=1.1.0&c=myapp&f=jsonp&callback=?&musicFolderId=' + id
-  console.log e.target.hash
-  console.log e.target.hash.length
+  #console.log e.target.hash
+  #console.log e.target.hash.length
   window.location.hash = e.target.hash
   glob.triggerHash() if e.target.hash.length > 3
+  glob.showFullDetail() if glob.lastLevel
 
   $('#tracks').empty()
 
