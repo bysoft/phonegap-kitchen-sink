@@ -1,22 +1,29 @@
+glob = []
+glob.triggerHash = ->
+  console.log 'triggerHash'
 
-$('#songs').click ->
-  console.log $('ul').length
-  console.log $('ul')
-
-$('body').on 'click', '#tracks a', (e) ->
-  console.log e.target
+$('body').on 'click', '#tracks a,.musicFolder', (e) ->
+  #console.log e.target
   id = $(e.target).attr('id')
   url = 'http://by.subsonic.org/rest/getIndexes.view?u=brian&p=home&v=1.1.0&c=myapp&f=jsonp&callback=?&musicFolderId=' + id
-  console.log url
+  console.log e.target.hash
+  console.log e.target.hash.length
+  window.location.hash = e.target.hash
+  glob.triggerHash()
+
   $('#tracks').empty()
+
+  # create listing for cat or track
   $.ajax
     url: url
     dataType:'jsonp'
     success: (d) ->
-      #console.log d['subsonic-response']['indexes']['index']
       $(d['subsonic-response']['indexes']['index']).each ->
-        console.log this.artist.name if this.artist.name != undefined
-        $('#tracks').append '<li><a href=#' + this.artist + ' >' + this.artist.name + '</a></li>' if this.artist.name != undefined
+        $('#tracks').append '<li><a data-recId=' + this.artist.id + ' href=#' + this.artist.id + ' >' + this.artist.name + '</a></li>' if this.artist.name != undefined
+        #console.log d['subsonic-response']['indexes']['index']
+        #console.log this.artist
+        #console.log this
+        #console.log this.artist.name if this.artist.name != undefined
         $('#tracks').listview 'refresh'
 
 
@@ -27,8 +34,8 @@ $(document).delegate 'body', 'pageinit', ->
     dataType:'jsonp'
     success: (d) ->
       $(d['subsonic-response']['musicFolders']['musicFolder']).each ->
-        console.log this
-        $('#tracks').append('<li><a id=' + this.id + ' href=#' + this.id + ' >' + this.name + '</a></li>').listview('refresh')
+        #console.log this
+        $('#tracks').append('<li><a id=' + this.id + ' class=musicFolder href=#' + this.id + ' >' + this.name + '</a></li>').listview('refresh')
         #$('#tracks').listview('refresh')
 
 
