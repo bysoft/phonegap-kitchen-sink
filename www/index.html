@@ -6,18 +6,18 @@
 
         <title>PhoneGap Kitchen Sink</title>
 
-        <link rel="stylesheet" href="style/jquery.mobile-1.0rc1.min.css" />
+        <!--<link rel="stylesheet" href="style/jquery.mobile-1.0rc1.min.css" />-->
+        <link rel="stylesheet" href="//code.jquery.com/mobile/1.1.1/jquery.mobile-1.1.1.min.css" />
 
-        <script type="text/javascript" src="js/jquery-1.6.4.min.js"></script>
+        <!--<script type="text/javascript" src="js/jquery-1.6.4.min.js"></script>-->
+        <script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
+        <!--<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>-->
         <script type="text/javascript" src="phonegap.js"></script>
-        <script type="text/javascript" src="js/jquery.mobile-1.0rc1.min.js"></script>
-        <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
-        <script type="text/javascript">
-          $(function(){
-              console.log('go')
-
-              })
-        </script>
+        <!--<script type="text/javascript" src="js/jquery.mobile-1.0rc1.min.js"></script>-->
+        <script type="text/javascript" src=js/jquery.mobile-1.1.1.min.js></script>
+        <script type="text/javascript" src="//maps.google.com/maps/api/js?sensor=false"></script>
+        <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/coffee-script/1.3.1/coffee-script.min.js"></script>
+        <script type="text/coffeescript" src='js/script.coffee'></script>
     </head>
     <body>
         <div data-role="page" id="home">
@@ -28,11 +28,14 @@
 
             <div data-role="content">
                 <ul data-role="listview" data-inset="true">
-                    <li data-role="list-divider">Item</li>
-                    <li><a href="page/accelerometer.html">Accelerometer</a></li>
-                    <li><a href="page/camera.html">Camera</a></li>
+                    <li data-role="list-divider">Menu</li>
+                    <!--<li><a href="page/accelerometer.html">Accelerometer</a></li>-->
+                    <!--<li><a href="page/camera.html">Camera</a></li>-->
                     <li>
-                    	<a href="http://digidj.herokuapp.com/allMusic">link</a>
+                    	<a href="#">settings</a>
+                    </li>
+                    <li>
+                    	<a id=songs href="page/songs.html">browse</a>
                     </li>
                 </ul>
             </div>
