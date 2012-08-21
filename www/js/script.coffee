@@ -1,7 +1,7 @@
 glob = []
 glob.triggerHash = ->
-  console.log 'triggerHash'
   wlh = window.location.hash.replace('#','')
+  console.log wlh
   id = wlh
   url = 'http://by.subsonic.org/rest/getMusicDirectory.view?u=brian&p=home&v=1.1.0&c=myapp&f=jsonp&callback=?&id=' + id
   $.ajax
@@ -14,20 +14,33 @@ glob.triggerHash = ->
         $('#tracks').append('<li><a href=#' + this.id + ' >' + this.title + '</a></li>').listview('refresh')
       glob.lastLevel = 1 if d['subsonic-response']['directory']['child']
 
-glob.showFullDetail = ->
+glob.showFullDetail = (id) ->
   #alert 'show full'
-  $('#img-wrap').prepend '<b>foo</b>'
+  #$('#img-wrap').prepend '<b>' + id + '</b>'
+  url = 'http://by.subsonic.org/rest/getMusicDirectory.view?u=brian&p=home&v=1.1.0&c=myapp&f=jsonp&callback=?&id=' + id
+  $.ajax
+    url:url
+    dataType:'jsonp'
+    success: (e) ->
+      console.log 'watch'
+      coverArtId = e['subsonic-response']['directory']['child'][0]['coverArt']
+      console.log coverArtId
+      $('#img-wrap').prepend('<img width=100% src=http://by.subsonic.org/rest/getCoverArt.view?u=brian&p=home&v=1.1&c=myapp&size=350&id=' + coverArtId + ' />')
+      # get coverart id from data response of first item and create img with src
 
 
 $('body').on 'click', '#tracks a,.musicFolder', (e) ->
   id = $(e.target).attr('id')
+  console.log e.target
   url = 'http://by.subsonic.org/rest/getIndexes.view?u=brian&p=home&v=1.1.0&c=myapp&f=jsonp&callback=?&musicFolderId=' + id
   #console.log e.target.hash
   #console.log e.target.hash.length
   window.location.hash = e.target.hash
   glob.triggerHash() if e.target.hash.length > 3
-  glob.showFullDetail() if glob.lastLevel
-
+  id = e.target.hash.replace('#','')
+  console.log 'debug'
+  console.log id
+  glob.showFullDetail(id) if glob.lastLevel
   $('#tracks').empty()
 
   # create listing for cat or track
@@ -37,10 +50,6 @@ $('body').on 'click', '#tracks a,.musicFolder', (e) ->
     success: (d) ->
       $(d['subsonic-response']['indexes']['index']).each ->
         $('#tracks').append '<li><a data-recId=' + this.artist.id + ' href=#' + this.artist.id + ' >' + this.artist.name + '</a></li>' if this.artist.name != undefined
-        #console.log d['subsonic-response']['indexes']['index']
-        #console.log this.artist
-        #console.log this
-        #console.log this.artist.name if this.artist.name != undefined
         $('#tracks').listview 'refresh'
 
 
