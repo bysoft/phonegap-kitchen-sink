@@ -68,7 +68,7 @@ $('body').on 'click', '#tracks a.sec', (e) ->
         glob.queryMethod2 = 'stream'
         glob.url = 'http://by.subsonic.org/rest/' + glob.queryMethod2 + '.view?u=brian&p=home&v=1.1.0&c=myapp&f=jsonp&callback=?&id=' + glob.musicDirectoryId
         streamUrl = glob.url
-        $('#tracks').append('<a href=' + streamUrl + ' >play</a>')
+        $('#tracks').append('<li><a title=' + data.id + ' href=' + streamUrl + ' >play</a></li>').listview('refresh')
 
       showFinal(d['subsonic-response']['directory']) if !d['subsonic-response']['directory']['child']
       thisName = d['subsonic-response']['directory'].name
