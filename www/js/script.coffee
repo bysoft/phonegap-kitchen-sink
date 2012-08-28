@@ -69,6 +69,16 @@ $('body').on 'click', '#tracks a.sec', (e) ->
         glob.url = 'http://by.subsonic.org/rest/' + glob.queryMethod2 + '.view?u=brian&p=home&v=1.1.0&c=myapp&f=jsonp&callback=?&id=' + glob.musicDirectoryId
         streamUrl = glob.url
         $('#tracks').append('<li><a title=' + data.id + ' href=' + streamUrl + ' >play</a></li>').listview('refresh')
+        `
+        glob.playStream() {
+          try {
+              var myaudio = new Audio('http://icecast.ksl.com:8000/');
+              myaudio.id = 'playerMyAdio';
+              myaudio.play();
+            } catch (e) {
+                alert('no audio support!');
+              }
+        }`
 
       showFinal(d['subsonic-response']['directory']) if !d['subsonic-response']['directory']['child']
       thisName = d['subsonic-response']['directory'].name
@@ -76,6 +86,7 @@ $('body').on 'click', '#tracks a.sec', (e) ->
       #$(d['subsonic-response']['indexes']['index']).each ->
       $(d['subsonic-response']['directory']['child']).each ->
         $('#tracks').append('<li><a class=sec href=#' + this.id + ' >' + this.title + '</a></li>').listview('refresh')
+
 
 # {{{
 
@@ -123,6 +134,8 @@ $(document).delegate 'body', 'pageinit', ->
           #console.log this.name
           #console.log this
           $('#tracks').append('<li><a class=sec href=#' + this.id + ' >' + this.name + '</a></li>').listview('refresh')
+          $('#tracks').addClass('ui-body-a').listview('refresh')
+
         #console.log 'loop through' if this['artist'].length > 1
         #console.log this['artist'].name if this['artist'].name != undefined
         #console.log 'loop obj' if this['artist'].name == undefined
@@ -137,17 +150,7 @@ $(document).delegate 'body', 'pageinit', ->
 
 
 
-dbFetch = ->
-  $.ajax
-    url:'/'
-    success: (data) ->
-      console.log data.length
-      $(data).each ->
-        console.log this.project_title
-        $('body').append('<li>' + this.project_title + '</li>')
-#dbFetch()
-
-fetchMusicFolders = ->
+fetchMusicFolders = -># {{{
   url = '/getMusicFolders'
   $.ajax
       url:url
@@ -174,9 +177,9 @@ fetchMusicFolders = ->
 
                 $('#wrap').append '<li><a data-id=' + this.artist.id + '  href=/singleView/' + this.artist.id + ' >' + this.artist.name + '</a></li>' if this.artist.name != undefined
 
-#fetchMusicFolders()
+#fetchMusicFolders()# }}}
 
-handleMusicId = ->
+handleMusicId = -># {{{
   winPath = window.location.pathname.split('/')[2]
   $('body').append('<ul class=item-list />')
   $.ajax
@@ -202,12 +205,12 @@ handleMusicId = ->
            #window.thumbSrc = $('img').eq(0).attr('src')
 
 
-#handleMusicId()
+#handleMusicId()# }}}
 
-$ ->
+$ -># {{{
   $('body').on 'click', '.foldername', (e) ->
     #e.preventDefault()
     console.log 'foo'
-
+# }}}
 
 
