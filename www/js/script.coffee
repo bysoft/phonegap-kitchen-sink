@@ -1,9 +1,16 @@
 glob = []
+
+
+glob.longId = -># {{{
+  # take long id and get album or folder info?
+
+  console.log 'glob.longId'
+
+# triggered on click when passed long id
 glob.triggerHash = ->
-  wlh = window.location.hash.replace('#','')
-  console.log wlh
-  id = wlh
-  url = 'http://by.subsonic.org/rest/getMusicDirectory.view?u=brian&p=home&v=1.1.0&c=myapp&f=jsonp&callback=?&id=' + id
+  glob.idVal = window.location.hash.replace('#','')
+
+  url = 'http://by.subsonic.org/rest/getMusicDirectory.view?u=brian&p=home&v=1.1.0&c=myapp&f=jsonp&callback=?&id=' + glob.idVal
   $.ajax
     url:url
     dataType:'jsonp'
@@ -11,57 +18,121 @@ glob.triggerHash = ->
       #console.log d['subsonic-response']['directory']['child']
       $(d['subsonic-response']['directory']['child']).each ->
         #console.log this.title
-        $('#tracks').append('<li><a href=#' + this.id + ' >' + this.title + '</a></li>').listview('refresh')
-      glob.lastLevel = 1 if d['subsonic-response']['directory']['child']
+        console.log this
+        $('#tracks').append('<li><a data-cover=' + this.coverArt + ' href=#' + this.id + ' >' + this.title + '</a></li>').listview('refresh')
+      console.log 'd obj'
+      console.log d
+      #glob.lastLevel = 1 if d['subsonic-response']['directory']['child']
 
+      # triggered if subsonic directory child is true or triggerHash() is fired
 glob.showFullDetail = (id) ->
-  #alert 'show full'
-  #$('#img-wrap').prepend '<b>' + id + '</b>'
-  url = 'http://by.subsonic.org/rest/getMusicDirectory.view?u=brian&p=home&v=1.1.0&c=myapp&f=jsonp&callback=?&id=' + id
+  query = 'getMusicDirectory'
+  url = 'http://by.subsonic.org/rest/'+query+'.view?u=brian&p=home&v=1.1.0&c=myapp&f=jsonp&callback=?&id=' + id
   $.ajax
     url:url
     dataType:'jsonp'
     success: (e) ->
       console.log 'watch'
+      console.log e
+      # api response rcvd change v1.2 - 1.8
       coverArtId = e['subsonic-response']['directory']['child'][0]['coverArt']
-      console.log coverArtId
-      $('#img-wrap').prepend('<img width=100% src=http://by.subsonic.org/rest/getCoverArt.view?u=brian&p=home&v=1.1&c=myapp&size=350&id=' + coverArtId + ' />')
+      songId = e['subsonic-response']['directory']['id']
+      getSongCover = ->
+        query = 'getSong'
+        $.ajax
+          url:url
+          dataType:'jsonp'
+          success: (d) ->
+            console.log d
+# }}}
+
       # get coverart id from data response of first item and create img with src
+      $('#img-wrap').prepend('<img width=100% src=http://by.subsonic.org/rest/getCoverArt.view?u=brian&p=home&v=1.1&c=myapp&size=350&id=' + coverArtId + ' />')
 
-
-$('body').on 'click', '#tracks a,.musicFolder', (e) ->
-  id = $(e.target).attr('id')
-  console.log e.target
-  url = 'http://by.subsonic.org/rest/getIndexes.view?u=brian&p=home&v=1.1.0&c=myapp&f=jsonp&callback=?&musicFolderId=' + id
-  #console.log e.target.hash
-  #console.log e.target.hash.length
-  window.location.hash = e.target.hash
-  glob.triggerHash() if e.target.hash.length > 3
-  id = e.target.hash.replace('#','')
-  console.log 'debug'
-  console.log id
-  glob.showFullDetail(id) if glob.lastLevel
+$('body').on 'click', '#tracks a.sec', (e) ->
+  trackId = e.target.hash
+  window.location.hash = trackId
   $('#tracks').empty()
 
-  # create listing for cat or track
+  glob.queryMethod = 'getMusicDirectory'
+  glob.musicDirectoryId = window.location.hash.replace('#','')
+  glob.url = 'http://by.subsonic.org/rest/' + glob.queryMethod + '.view?u=brian&p=home&v=1.1.0&c=myapp&f=jsonp&callback=?&id=' + glob.musicDirectoryId
   $.ajax
-    url: url
+    url: glob.url
     dataType:'jsonp'
     success: (d) ->
-      $(d['subsonic-response']['indexes']['index']).each ->
-        $('#tracks').append '<li><a data-recId=' + this.artist.id + ' href=#' + this.artist.id + ' >' + this.artist.name + '</a></li>' if this.artist.name != undefined
-        $('#tracks').listview 'refresh'
+      console.log 'last'
+      showFinal = (data) ->
+        console.log 'show final'
+        console.log data.id
+        glob.queryMethod2 = 'stream'
+        glob.url = 'http://by.subsonic.org/rest/' + glob.queryMethod2 + '.view?u=brian&p=home&v=1.1.0&c=myapp&f=jsonp&callback=?&id=' + glob.musicDirectoryId
+        streamUrl = glob.url
+        $('#tracks').append('<a href=' + streamUrl + ' >play</a>')
+
+      showFinal(d['subsonic-response']['directory']) if !d['subsonic-response']['directory']['child']
+      thisName = d['subsonic-response']['directory'].name
+      $('.ui-title').text(thisName)
+      #$(d['subsonic-response']['indexes']['index']).each ->
+      $(d['subsonic-response']['directory']['child']).each ->
+        $('#tracks').append('<li><a class=sec href=#' + this.id + ' >' + this.title + '</a></li>').listview('refresh')
+
+# {{{
+
+#$('body').on 'click', '#tracks a,.musicFolder', (e) ->
+  #console.log e.target
+  #glob.musicFolderId = $(e.target).attr('id')
+  #glob.queryMethod = 'getIndexes'
+  #glob.url = 'http://by.subsonic.org/rest/' + glob.queryMethod + '.view?u=brian&p=home&v=1.1.0&c=myapp&f=jsonp&callback=?&musicFolderId=' + glob.musicFolderId
+  ## set page hash val to reflect new data id
+  #window.location.hash = e.target.hash
+  #glob.longId(glob.musicFolderId) if e.target.hash.length
+  ##glob.longId(musicFolderId) if e.target.hash.length > 3
+  ##glob.triggerHash() if e.target.hash.length > 3
+  #assignedId = e.target.hash.replace('#','')
+  ##glob.showFullDetail(assignedId) if glob.lastLevel
+  #$('#tracks').empty()
+
+  ## create listing for cat or track
+  #$.ajax
+    #url: glob.url
+    #dataType:'jsonp'
+    #success: (d) ->
+      #$(d['subsonic-response']['indexes']['index']).each ->
+        #$('#tracks').append '<li><a data-recId=' + this.artist.id + ' href=#' + this.artist.id + ' >' + this.artist.name + '</a></li>' if this.artist.name != undefined
+        #$('#tracks').listview 'refresh'# }}}
 
 
+        # load music folders on init
 $(document).delegate 'body', 'pageinit', ->
-  url = 'http://by.subsonic.org/rest/getMusicFolders.view?u=brian&p=home&v=1.1.0&c=myapp&f=jsonp&callback=?'
+  console.log 'get music folders'
+  glob.queryMethod = 'getIndexes'
+  glob.url = 'http://by.subsonic.org/rest/' + glob.queryMethod + '.view?u=brian&p=home&v=1.1.0&c=myapp&f=jsonp&callback=?'
   $.ajax
-    url:url
+    url:glob.url
     dataType:'jsonp'
     success: (d) ->
-      $(d['subsonic-response']['musicFolders']['musicFolder']).each ->
-        #console.log this
-        $('#tracks').append('<li><a id=' + this.id + ' class=musicFolder href=#' + this.id + ' >' + this.name + '</a></li>').listview('refresh')
+      console.log 'page init'
+      console.log d
+      $(d['subsonic-response']['indexes']['index']).each ->
+        #console.log "this['artist']"
+        #console.log this['artist'].length
+        #console.log this['artist']
+        $(this['artist']).each ->
+          #console.log 'this name'
+          #console.log this.name
+          #console.log this
+          $('#tracks').append('<li><a class=sec href=#' + this.id + ' >' + this.name + '</a></li>').listview('refresh')
+        #console.log 'loop through' if this['artist'].length > 1
+        #console.log this['artist'].name if this['artist'].name != undefined
+        #console.log 'loop obj' if this['artist'].name == undefined
+        #loopObj = (thisArtist) ->
+          ##console.log 'begin loopObj()'
+          ##console.log thisArtist.name
+        #thisArtist = this['artist']
+        #loopObj(thisArtist) if this['artist'].name != undefined
+      #$(d['subsonic-response']['musicFolders']['musicFolder']).each ->
+        #$('#tracks').append('<li><a id=' + this.id + ' class=musicFolder href=#' + this.id + ' >' + this.name + '</a></li>').listview('refresh')
         #$('#tracks').listview('refresh')
 
 
