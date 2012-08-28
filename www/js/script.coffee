@@ -70,7 +70,6 @@ $('body').on 'click', '#tracks a.sec', (e) ->
         streamUrl = glob.url
         $('#tracks').append('<li><a title=' + data.id + ' href=' + streamUrl + ' >play</a></li>').listview('refresh')
         `
-        glob.playStream() {
           try {
               var myaudio = new Audio('http://icecast.ksl.com:8000/');
               myaudio.id = 'playerMyAdio';
@@ -78,7 +77,7 @@ $('body').on 'click', '#tracks a.sec', (e) ->
             } catch (e) {
                 alert('no audio support!');
               }
-        }`
+        `
 
       showFinal(d['subsonic-response']['directory']) if !d['subsonic-response']['directory']['child']
       thisName = d['subsonic-response']['directory'].name
