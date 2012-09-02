@@ -46,13 +46,35 @@ glob.showFullDetail = (id) ->
             console.log d
 # }}}
 
-      # get coverart id from data response of first item and create img with src
-      $('#img-wrap').prepend('<img width=100% src=http://by.subsonic.org/rest/getCoverArt.view?u=brian&p=home&v=1.1&c=myapp&size=350&id=' + coverArtId + ' />')
+
+$('body').on 'click', '.pay-track', (e) ->
+  console.log e
+  console.log 'handle payment'
 
 
 $('body').on 'click', '.thumb', (e) ->
-  console.log 'click thumb'
-  console.log e.target.data
+  albumId = $(e.target).attr('data-albumid')
+  imgUrl = 'http://by.subsonic.org/rest/getCoverArt.view?u=brian&p=home&v=1.8&c=digidij&size=350&id=' + albumId
+
+  url = glob.url
+  glob.queryMethod = 'getMusicDirectory'
+  glob.url = 'http://by.subsonic.org/rest/' + glob.queryMethod + '.view?u=brian&p=home&v=1.8.0&c=digidj&f=jsonp&callback=?&id=' + albumId
+  $('#tracks').empty()
+  $.ajax
+    url: glob.url
+    dataType:'jsonp'
+    success: (d) ->
+      $(d['subsonic-response']['directory']['child']).each ->
+        #console.log this.title
+        $('#tracks')
+          .append('<li><a class=sec href=#' + this.id + ' >' + this.title + '</a></li>')
+          .listview('refresh')
+
+      $('#tracks').prepend("<a class=medCover href=#' + this.id + ' ><img width=100% data-albumid=' + this.id + ' src='" + imgUrl + "' /></a>")
+      dirName = d['subsonic-response']['directory']['name']
+      $('h1').text(dirName)
+
+
 
 
 $('body').on 'click', '#tracks a.sec', (e) ->
@@ -71,17 +93,18 @@ $('body').on 'click', '#tracks a.sec', (e) ->
     dataType:'jsonp'
     success: (d) ->
       console.log 'val of d'
+      console.log d
       #coverArtSongList = d['subsonic-response']['directory']['child']['coverArt']
       #console.log coverArtSongList
       coverArtId = d['subsonic-response']['directory']['child'][0]['coverArt'] if d['subsonic-response']['directory']['child']
       $(d['subsonic-response']['directory']['child']).each ->
         imgUrl = 'http://by.subsonic.org/rest/getCoverArt.view?u=brian&p=home&v=1.1&c=myapp&size=100&id=' + this.coverArt
-        $('#tracks').prepend('<a class=thumb href=#' + this.id + ' ><img data-albumid=' + this.id + ' src=' + imgUrl + ' /></a>') if coverArtId
+        $('#tracks').prepend('<a class=thumb href=#' + this.id + ' ><img width=32% data-albumid=' + this.id + ' src=' + imgUrl + ' /></a>') if coverArtId
       showFinal = (data) ->
         glob.queryMethod = 'stream'
         glob.url = 'http://by.subsonic.org/rest/' + glob.queryMethod + '.view?u=brian&p=home&v=1.1.0&c=myapp&f=jsonp&callback=?&id=' + glob.musicDirectoryId
         streamUrl = glob.url
-        $('#tracks').append('<li><a title=' + data.id + ' href=' + streamUrl + ' >play</a></li>').listview('refresh')
+        $('#tracks').append('<li><a title=' + data.id + ' href=' + streamUrl + ' >play</a></li><li><a class=pay-track href=#pay >pay</a></li>').listview('refresh')
 
       showFinal(d['subsonic-response']['directory']) if !d['subsonic-response']['directory']['child']
       thisName = d['subsonic-response']['directory'].name
