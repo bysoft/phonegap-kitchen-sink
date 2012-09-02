@@ -70,7 +70,7 @@ $('body').on 'click', '.thumb', (e) ->
           .append('<li><a class=sec href=#' + this.id + ' >' + this.title + '</a></li>')
           .listview('refresh')
 
-      $('#tracks').prepend("<a class=medCover href=#' + this.id + ' ><img width=100% data-albumid=' + this.id + ' src='" + imgUrl + "' /></a>")
+      $('#tracks').append("<a class=medCover href=#' + this.id + ' ><img width=100% data-albumid=' + this.id + ' src='" + imgUrl + "' /></a>")
       dirName = d['subsonic-response']['directory']['name']
       $('h1').text(dirName)
 
@@ -82,7 +82,7 @@ $('body').on 'click', '#tracks a.sec', (e) ->
   window.location.hash = trackId
   trackIdNum = trackId.replace('#','')
   $('h1').attr 'data-trackId', trackIdNum
-  $('#tracks').empty()
+  $('#tracks').empty().css('background','url(images/loader.gif)')
 
 
   glob.queryMethod = 'getMusicDirectory'
