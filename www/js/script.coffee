@@ -49,42 +49,63 @@ glob.showFullDetail = (id) ->
       # get coverart id from data response of first item and create img with src
       $('#img-wrap').prepend('<img width=100% src=http://by.subsonic.org/rest/getCoverArt.view?u=brian&p=home&v=1.1&c=myapp&size=350&id=' + coverArtId + ' />')
 
+
+$('body').on 'click', '.thumb', (e) ->
+  console.log 'click thumb'
+  console.log e.target.data
+
+
 $('body').on 'click', '#tracks a.sec', (e) ->
   trackId = e.target.hash
   window.location.hash = trackId
+  trackIdNum = trackId.replace('#','')
+  $('h1').attr 'data-trackId', trackIdNum
   $('#tracks').empty()
+
 
   glob.queryMethod = 'getMusicDirectory'
   glob.musicDirectoryId = window.location.hash.replace('#','')
-  glob.url = 'http://by.subsonic.org/rest/' + glob.queryMethod + '.view?u=brian&p=home&v=1.1.0&c=myapp&f=jsonp&callback=?&id=' + glob.musicDirectoryId
+  glob.url = 'http://by.subsonic.org/rest/' + glob.queryMethod + '.view?u=brian&p=home&v=1.8.0&c=digidj&f=jsonp&callback=?&id=' + glob.musicDirectoryId
   $.ajax
     url: glob.url
     dataType:'jsonp'
     success: (d) ->
-      console.log 'last'
+      console.log 'val of d'
+      #coverArtSongList = d['subsonic-response']['directory']['child']['coverArt']
+      #console.log coverArtSongList
+      coverArtId = d['subsonic-response']['directory']['child'][0]['coverArt'] if d['subsonic-response']['directory']['child']
+      $(d['subsonic-response']['directory']['child']).each ->
+        imgUrl = 'http://by.subsonic.org/rest/getCoverArt.view?u=brian&p=home&v=1.1&c=myapp&size=100&id=' + this.coverArt
+        $('#tracks').prepend('<a class=thumb href=#' + this.id + ' ><img data-albumid=' + this.id + ' src=' + imgUrl + ' /></a>') if coverArtId
       showFinal = (data) ->
-        console.log 'show final'
-        console.log data.id
-        glob.queryMethod2 = 'stream'
-        glob.url = 'http://by.subsonic.org/rest/' + glob.queryMethod2 + '.view?u=brian&p=home&v=1.1.0&c=myapp&f=jsonp&callback=?&id=' + glob.musicDirectoryId
+        glob.queryMethod = 'stream'
+        glob.url = 'http://by.subsonic.org/rest/' + glob.queryMethod + '.view?u=brian&p=home&v=1.1.0&c=myapp&f=jsonp&callback=?&id=' + glob.musicDirectoryId
         streamUrl = glob.url
         $('#tracks').append('<li><a title=' + data.id + ' href=' + streamUrl + ' >play</a></li>').listview('refresh')
-        `
-          try {
-              var myaudio = new Audio('http://icecast.ksl.com:8000/');
-              myaudio.id = 'playerMyAdio';
-              myaudio.play();
-            } catch (e) {
-                alert('no audio support!');
-              }
-        `
 
       showFinal(d['subsonic-response']['directory']) if !d['subsonic-response']['directory']['child']
       thisName = d['subsonic-response']['directory'].name
       $('.ui-title').text(thisName)
       #$(d['subsonic-response']['indexes']['index']).each ->
       $(d['subsonic-response']['directory']['child']).each ->
-        $('#tracks').append('<li><a class=sec href=#' + this.id + ' >' + this.title + '</a></li>').listview('refresh')
+        imgUrl = 'http://by.subsonic.org/rest/getCoverArt.view?u=brian&p=home&v=1.8&c=digidj&size=350&id=' + this.id
+        $('#tracks')
+          .append('<li><a class=sec href=#' + this.id + ' >' + this.title + '</a></li>')
+          #.append('<img src=' + imgUrl + ' >')
+          .listview('refresh')
+        glob.queryMethod = 'getSong'
+        glob.url = 'http://by.subsonic.org/rest/' + glob.queryMethod + '.view?u=brian&p=home&v=1.8.0&c=digidj&f=jsonp&callback=?&id=' + this.id
+
+        #console.log glob.url
+        $.ajax
+          url: glob.url
+          dataType:'jsonp'
+          success: (d) ->
+            console.log d['subsonic-response']['song']['coverArt']
+            #console.log d['subsonic-response']
+            console.log 'debug'
+            console.log d['subsonic-response']['directory']['child'][0]
+
 
 
 # {{{
@@ -117,25 +138,26 @@ $('body').on 'click', '#tracks a.sec', (e) ->
 $(document).delegate 'body', 'pageinit', ->
   console.log 'get music folders'
   glob.queryMethod = 'getIndexes'
-  glob.url = 'http://by.subsonic.org/rest/' + glob.queryMethod + '.view?u=brian&p=home&v=1.1.0&c=myapp&f=jsonp&callback=?'
+  glob.url = 'http://by.subsonic.org/rest/' + glob.queryMethod + '.view?u=brian&p=home&v=1.8.0&c=digidj&f=jsonp&callback=?'
   $.ajax
     url:glob.url
     dataType:'jsonp'
     success: (d) ->
       console.log 'page init'
-      console.log d
+      console.log d['subsonic-response']['indexes']['index']
       $(d['subsonic-response']['indexes']['index']).each ->
-        #console.log "this['artist']"
+        #console.log "this['artist']"# {{{
         #console.log this['artist'].length
-        #console.log this['artist']
+        #console.log this['artist']# }}}
         $(this['artist']).each ->
-          #console.log 'this name'
+          #console.log 'this name'# {{{
           #console.log this.name
-          #console.log this
-          $('#tracks').append('<li><a class=sec href=#' + this.id + ' >' + this.name + '</a></li>').listview('refresh')
+          #console.log this# }}}
+          #$('#tracks').append('<li><a class=sec href=#' + this.id + ' >' + this.name + '</a></li>').listview('refresh')
           $('#tracks').addClass('ui-body-a').listview('refresh')
+      $('ul.ui-body-a').append('<li><a class=sec href=#25102 >Genre</a></li>').listview('refresh')
 
-        #console.log 'loop through' if this['artist'].length > 1
+        #console.log 'loop through' if this['artist'].length > 1# {{{
         #console.log this['artist'].name if this['artist'].name != undefined
         #console.log 'loop obj' if this['artist'].name == undefined
         #loopObj = (thisArtist) ->
@@ -145,7 +167,7 @@ $(document).delegate 'body', 'pageinit', ->
         #loopObj(thisArtist) if this['artist'].name != undefined
       #$(d['subsonic-response']['musicFolders']['musicFolder']).each ->
         #$('#tracks').append('<li><a id=' + this.id + ' class=musicFolder href=#' + this.id + ' >' + this.name + '</a></li>').listview('refresh')
-        #$('#tracks').listview('refresh')
+        #$('#tracks').listview('refresh')# }}}
 
 
 
