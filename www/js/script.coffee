@@ -60,6 +60,7 @@ $('body').on 'click', '.thumb', (e) ->
   glob.queryMethod = 'getMusicDirectory'
   glob.url = 'http://by.subsonic.org/rest/' + glob.queryMethod + '.view?u=brian&p=home&v=1.8.0&c=digidj&f=jsonp&callback=?&id=' + albumId
   $('#tracks').empty()
+  $('#tracks').css('background','url(../style/images/loader.gif) no-repeat 150px 10px').css('min-height','50px')
   $.ajax
     url: glob.url
     dataType:'jsonp'
@@ -82,7 +83,8 @@ $('body').on 'click', '#tracks a.sec', (e) ->
   window.location.hash = trackId
   trackIdNum = trackId.replace('#','')
   $('h1').attr 'data-trackId', trackIdNum
-  $('#tracks').empty().css('background','url(images/loader.gif)')
+  $('#tracks').empty()
+  $('#tracks').css('background','url(../style/images/loader.gif) no-repeat 150px 10px').css('min-height','50px')
 
 
   glob.queryMethod = 'getMusicDirectory'
